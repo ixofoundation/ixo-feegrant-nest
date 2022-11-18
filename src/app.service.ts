@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { cosmos, createSigningClient } from '@ixo/impactxclient-sdk';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
-import Long from 'long';
-
-import { Coin } from './types/coin';
-import { Timestamp } from './types/timestamp';
+import { DirectSecp256k1HdWallet, Registry } from '@cosmjs/proto-signing';
+import {
+  defaultRegistryTypes as defaultStargateTypes,
+  SigningStargateClient,
+} from '@cosmjs/stargate';
+import { BasicAllowance } from 'cosmjs-types/cosmos/feegrant/v1beta1/feegrant';
+import { MsgGrantAllowance } from 'cosmjs-types/cosmos/feegrant/v1beta1/tx';
+import { Any } from 'cosmjs-types/google/protobuf/any';
 
 @Injectable()
 export class AppService {
@@ -18,74 +20,43 @@ export class AppService {
   }
 
   async createFeeGrant(grantee: string) {
+    const myRegistry = new Registry(defaultStargateTypes);
     const signer = await DirectSecp256k1HdWallet.fromMnemonic(this.mnemonic, {
       prefix: 'ixo',
     });
-
-    const client = await createSigningClient(
+    const client = await SigningStargateClient.connectWithSigner(
       'https://testnet.ixo.earth/rpc/',
       signer,
+      { registry: myRegistry },
     );
-
-    const basicAllowance = cosmos.feegrant.v1beta1.BasicAllowance;
     const address = await signer.getAccounts();
-    const timestamp = Timestamp.fromPartial({ seconds: new Long(1), nanos: 1 });
-    const spendLimit = Coin.fromPartial({ denom: 'ixo', amount: '1' });
 
-    const allowance = {
+    const allowance: Any = {
       typeUrl: '/cosmos.feegrant.v1beta1.BasicAllowance',
-      value: basicAllowance.fromJSON({
-        spendLimit: [spendLimit],
-        expiration: timestamp,
-      }),
+      value: Uint8Array.from(
+        BasicAllowance.encode({
+          spendLimit: [
+            {
+              denom: 'uixo',
+              amount: '100000',
+            },
+          ],
+        }).finish(),
+      ),
     };
-
-    const grant = cosmos.feegrant.v1beta1.Grant;
-    const message = {
-      typeUrl: '/cosmos.feegrant.v1beta1.Grant',
-      value: grant.fromJSON({
-        allowance: allowance,
-        grantee: grantee,
+    const grantMsg = {
+      typeUrl: '/cosmos.feegrant.v1beta1.MsgGrantAllowance',
+      value: MsgGrantAllowance.fromPartial({
         granter: address[0].address,
+        grantee: grantee,
+        allowance: allowance,
       }),
     };
-
-    const gasUsed = await client.simulate(
+    const response = await client.signAndBroadcast(
       address[0].address,
-      [message],
-      'feegrant-daemon-ixo',
-    );
-
-    const gasPriceStep = {
-      low: 0.01,
-      average: 0.025,
-      high: 0.04,
-    };
-
-    const low = gasUsed * gasPriceStep.low;
-    const average = gasUsed * gasPriceStep.average;
-    const high = gasUsed * gasPriceStep.high;
-
-    const gas = {
-      low: low,
-      average: average,
-      high: high,
-    };
-
-    const fee = {
-      amount: [
-        {
-          denom: 'uixo',
-          amount: gas.high.toString(),
-        },
-      ],
-      gas: gasUsed.toString(),
-    };
-
-    const response = client.signAndBroadcast(
-      address[0].address,
-      [message],
-      fee,
+      [grantMsg],
+      'auto',
+      'Create allowance ixo',
     );
 
     return response;

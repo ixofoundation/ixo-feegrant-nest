@@ -22,11 +22,12 @@
   },
   "dependencies": {
     "@cosmjs/proto-signing": "^0.29.4",
-    "@ixo/impactxclient-sdk": "^0.0.5",
+    "@cosmjs/stargate": "^0.29.4",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "cosmjs-types": "^0.5.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0"
