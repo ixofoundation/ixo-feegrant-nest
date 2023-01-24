@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { fromBech32 } from '@cosmjs/encoding';
 import { exec } from 'child_process';
 
 @Injectable()
@@ -10,13 +11,25 @@ export class AppService {
   private feegrant_account = this.FEEGRANT_ACCOUNT.toLowerCase();
   private FEEGRANT_AMOUNT = this.configService.get<string>('FEEGRANT_AMOUNT');
 
+  private isValidAddress(input: string): boolean {
+    try {
+      const { prefix, data } = fromBech32(input);
+      if (!prefix.includes('ixo')) {
+        return false;
+      }
+      return data.length === 20;
+    } catch {
+      return false;
+    }
+  }
+
   get(): string {
     return 'API Running';
   }
 
   createFeeGrant(grantee: string) {
     try {
-      if (!grantee.startsWith('did:')) {
+      if (!this.isValidAddress(grantee)) {
         return 'Invalid Grantee Address';
       }
       exec(
@@ -35,6 +48,7 @@ export class AppService {
         },
       );
     } catch (error) {
+      console.log({ error: error.toString() });
       return { error: error.toString() };
     }
   }
