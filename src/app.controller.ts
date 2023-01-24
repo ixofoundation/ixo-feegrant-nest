@@ -10,13 +10,8 @@ export class AppController {
     return this.appService.get();
   }
 
-  @Post('/createfeegrant/:address')
-  async createFeeGrant(@Param('address') address: string) {
-    try {
-      const res = await this.appService.createFeeGrant(address);
-      return res.transactionHash;
-    } catch (error) {
-      return error;
-    }
+  @Post('/createfeegrant/:grantee')
+  createFeeGrant(@Param('grantee') grantee: string) {
+    return this.appService.createFeeGrant(grantee);
   }
 }
