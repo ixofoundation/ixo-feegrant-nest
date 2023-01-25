@@ -9,7 +9,7 @@ async function bootstrap() {
 
   try {
     exec(
-      `(echo "${process.env.FEEGRANT_MNEMONIC}"; echo "${process.env.FEEGRANT_PASSWORD}") | ixod keys add feegrant --recover`,
+      `(yes "${process.env.FEEGRANT_MNEMONIC}"; echo "${process.env.FEEGRANT_PASSWORD}") | ixod keys add feegrant --recover`,
       (error, stdout, stderr) => {
         if (error) {
           console.log({ error: error.toString() });
