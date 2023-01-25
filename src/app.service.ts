@@ -10,7 +10,7 @@ export class AppService {
   private FEEGRANT_ACCOUNT = this.configService.get<string>('FEEGRANT_ACCOUNT');
   private feegrant_account = this.FEEGRANT_ACCOUNT.toLowerCase();
   private FEEGRANT_AMOUNT = this.configService.get<string>('FEEGRANT_AMOUNT');
-  private CHAIN_RPC = this.configService.get<string>('CHAIN_RPC')
+  private CHAIN_RPC = this.configService.get<string>('CHAIN_RPC');
 
   private isValidAddress(input: string): boolean {
     try {
@@ -34,7 +34,7 @@ export class AppService {
         return 'Invalid Grantee Address';
       }
       exec(
-        `ixod tx feegrant grant $${this.FEEGRANT_ACCOUNT} $${grantee} --from ${this.feegrant_account} --spend-limit ${this.FEEGRANT_AMOUNT}uixo --node ${this.CHAIN_RPC}`,
+        `echo "${process.env.FEEGRANT_PASSWORD}" | ixod tx feegrant grant ${this.FEEGRANT_ACCOUNT} ${grantee} --from ${this.feegrant_account} --spend-limit ${this.FEEGRANT_AMOUNT}uixo --node ${this.CHAIN_RPC}`,
         (error, stdout, stderr) => {
           if (error) {
             console.log({ error: error.toString() });
