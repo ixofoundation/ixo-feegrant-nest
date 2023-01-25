@@ -6,7 +6,7 @@ COPY --from=ghcr.io/ixofoundation/ixo-blockchain:debug /lib/x86_64-linux-gnu/lib
 
 WORKDIR /app
 
-COPY package*.json .
+COPY package*.json ./
 
 RUN yarn install
 
