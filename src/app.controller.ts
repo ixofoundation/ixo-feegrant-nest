@@ -10,8 +10,8 @@ export class AppController {
     return this.appService.get();
   }
 
-  @Post('/createfeegrant/:grantee')
-  createFeeGrant(@Param('grantee') grantee: string) {
-    return this.appService.createFeeGrant(grantee);
+  @Post('/createfeegrant/:address')
+  async createFeeGrant(@Param('address') address: string) {
+    return this.appService.createFeeGrant(address);
   }
 }
