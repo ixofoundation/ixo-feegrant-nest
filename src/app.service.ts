@@ -10,6 +10,7 @@ export class AppService {
 
   private mnemonic = this.configService.get<string>('FEEGRANT_MNEMONIC');
   private spendLimit = this.configService.get<string>('SPEND_LIMIT');
+  private rpcUrl = this.configService.get<string>('RPC_URL');
 
   get(): string {
     return 'API Running';
@@ -21,17 +22,14 @@ export class AppService {
         prefix: 'ixo',
       });
 
-      const client = await createSigningClient(
-        'https://testnet.ixo.earth/rpc/',
-        signer,
-      );
+      const client = await createSigningClient(this.rpcUrl, signer);
 
       const address = await signer.getAccounts();
       const timestamp = {
         seconds: new Long(1),
         nanos: 1,
       };
-      const spendLimit = { denom: 'ixo', amount: this.spendLimit };
+      const spendLimit = { denom: 'uixo', amount: this.spendLimit };
 
       const allowance = {
         typeUrl: '/cosmos.feegrant.v1beta1.BasicAllowance',
