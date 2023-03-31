@@ -5,13 +5,17 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get(['', '/status'])
+  @Get()
   get(): string {
     return this.appService.get();
   }
 
-  @Post('/createfeegrant/:address')
-  async createFeeGrant(@Param('address') address: string) {
-    return this.appService.createFeeGrant(address);
+  @Post('/feegrant/:address')
+  async feeGrant(@Param('address') address: string) {
+    try {
+      return this.appService.feeGrant(address);
+    } catch (error) {
+      return error as string;
+    }
   }
 }

@@ -1,54 +1,63 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createSigningClient } from '@ixo/impactxclient-sdk';
+import { createSigningClient, utils } from '@ixo/impactxclient-sdk';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
-import * as Long from 'long';
+import { Any } from 'cosmjs-types/google/protobuf/any';
+import { BasicAllowance } from 'cosmjs-types/cosmos/feegrant/v1beta1/feegrant';
+import { MsgGrantAllowance } from 'cosmjs-types/cosmos/feegrant/v1beta1/tx';
 
 @Injectable()
 export class AppService {
   constructor(private configService: ConfigService) {}
 
-  private mnemonic = this.configService.get<string>('FEEGRANT_MNEMONIC');
-  private spendLimit = this.configService.get<string>('SPEND_LIMIT');
+  private mnemonic = this.configService.get<string>('MNEMONIC');
   private rpcUrl = this.configService.get<string>('RPC_URL');
 
   get(): string {
     return 'API Running';
   }
 
-  async createFeeGrant(grantee: string) {
+  async feeGrant(grantee: string) {
     try {
-      const signer = await DirectSecp256k1HdWallet.fromMnemonic(this.mnemonic, {
+      const now = new Date();
+
+      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(this.mnemonic, {
         prefix: 'ixo',
       });
+      const client = await createSigningClient(this.rpcUrl, wallet);
+      const accounts = await wallet.getAccounts();
+      const account = accounts[0];
+      const address = account.address;
 
-      const client = await createSigningClient(this.rpcUrl, signer);
-
-      const address = await signer.getAccounts();
-      const timestamp = {
-        seconds: new Long(1),
-        nanos: 1,
-      };
-      const spendLimit = { denom: 'uixo', amount: this.spendLimit };
-
-      const allowance = {
+      const allowance: Any = {
         typeUrl: '/cosmos.feegrant.v1beta1.BasicAllowance',
-        value: {
-          spendLimit: [spendLimit],
-          expiration: timestamp,
-        },
+        value: Uint8Array.from(
+          BasicAllowance.encode({
+            spendLimit: [
+              {
+                denom: 'uxio',
+                amount: '10000000',
+              },
+            ],
+            expiration: utils.proto.toTimestamp(
+              new Date(now.setDate(now.getDate() + 31)),
+            ),
+          }).finish(),
+        ),
+      };
+
+      const value: MsgGrantAllowance = {
+        granter: address,
+        grantee: grantee,
+        allowance: allowance,
       };
 
       const message = {
         typeUrl: '/cosmos.feegrant.v1beta1.MsgGrantAllowance',
-        value: {
-          allowance: allowance,
-          grantee: grantee,
-          granter: address[0].address,
-        },
+        value: value,
       };
 
-      const fee = {
+      return client.signAndBroadcast(address, [message], {
         amount: [
           {
             denom: 'uixo',
@@ -56,18 +65,9 @@ export class AppService {
           },
         ],
         gas: '4000000',
-      };
-
-      const response = client.signAndBroadcast(
-        address[0].address,
-        [message],
-        fee,
-      );
-
-      return response;
+      });
     } catch (error) {
-      console.log(error);
-      return { error: error.toString() };
+      return error.toString();
     }
   }
 }

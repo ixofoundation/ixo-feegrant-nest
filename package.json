@@ -21,12 +21,13 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@cosmjs/proto-signing": "^0.29.4",
-    "@ixo/impactxclient-sdk": "^0.0.5",
+    "@cosmjs/proto-signing": "^0.30.1",
+    "@ixo/impactxclient-sdk": "^1.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "cosmjs-types": "^0.7.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0"
