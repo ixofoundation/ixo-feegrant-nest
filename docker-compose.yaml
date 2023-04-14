@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   app:
-    container_name: ixo-feegrant-nest
+    container_name: ghcr.io/ixofoundation/ixo-feegrant-nest:latest
     build:
       context: .
       dockerfile: Dockerfile
