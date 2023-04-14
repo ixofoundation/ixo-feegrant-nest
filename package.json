@@ -1,10 +1,10 @@
 {
   "name": "ixo-feegrant-nest",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Ixo feegrant server to feegrant from ixo provided user to users.",
+  "author": "Ixo",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -22,12 +22,12 @@
   },
   "dependencies": {
     "@cosmjs/proto-signing": "^0.30.1",
-    "@ixo/impactxclient-sdk": "^1.0.0",
+    "@ixo/impactxclient-sdk": "^1.0.2",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
-    "cosmjs-types": "^0.7.1",
+    "dotenv": "^16.0.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0"

@@ -15,7 +15,7 @@ export class AppController {
     try {
       return this.appService.feeGrant(address);
     } catch (error) {
-      return error as string;
+      return error.message;
     }
   }
 }
