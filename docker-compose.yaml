@@ -2,6 +2,13 @@ version: '3.7'
 services:
   app:
     container_name: ixo-feegrant-nest
-    image: northroomza/ixo-feegrant-nest:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    tty: true
+    image: ixo-feegrant-nest
+    restart: unless-stopped
+    volumes:
+      - ./:/app
     ports:
       - 3000:3000

@@ -2,14 +2,12 @@ FROM node:latest
 
 WORKDIR /app
 
-COPY package.json ./
+COPY package.json yarn.lock ./
 
-COPY yarn.lock .
-
-RUN yarn install
+RUN yarn --pure-lockfile
 
 COPY . .
 
-RUN yarn build 
+RUN yarn build
 
 CMD ["yarn","start:prod"]
