@@ -1,6 +1,6 @@
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { cosmos, createSigningClient, utils } from '@ixo/impactxclient-sdk';
-import { getSignerData } from './store';
+var store = require('store');
 
 require('dotenv').config();
 
@@ -24,6 +24,12 @@ export class IxoFeegrant {
     this.signingClient = await createSigningClient(
       process.env.RPC_URL,
       this.wallet,
+      false,
+      null,
+      {
+        getLocalData: (k) => store.get(k),
+        setLocalData: (k, d) => store.set(k, d),
+      },
     );
   }
 
@@ -59,8 +65,6 @@ export class IxoFeegrant {
       }),
     };
 
-    const signerData = await getSignerData(this.signingClient, this.wallet);
-
     return this.signingClient.signAndBroadcast(
       address,
       [message],
@@ -74,7 +78,6 @@ export class IxoFeegrant {
         gas: '400000',
       },
       'Feegrant from Ixo',
-      signerData,
     );
   }
 }

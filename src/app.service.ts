@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IxoFeegrant } from './granter';
 import { assertIsDeliverTxSuccess } from '@cosmjs/stargate';
+import * as Sentry from '@sentry/node';
 
 @Injectable()
 export class AppService {
@@ -14,6 +15,7 @@ export class AppService {
     try {
       const res = await IxoFeegrant.instance.feegrant(grantee);
       assertIsDeliverTxSuccess(res);
+      if (res.code != 0) Sentry.captureException(res);
       return res;
     } catch (error) {
       return error.toString();
