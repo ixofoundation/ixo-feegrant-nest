@@ -11,6 +11,16 @@ export class AppService {
     return 'Welcome to Ixo fee grant service!';
   }
 
+  async feeGrantExtend(grantee: string) {
+    try {
+      const res = await IxoFeegrant.instance.feegrant(grantee, 7);
+      assertIsDeliverTxSuccess(res);
+      return res;
+    } catch (error) {
+      return error.toString();
+    }
+  }
+
   async feeGrant(grantee: string) {
     try {
       const res = await IxoFeegrant.instance.feegrant(grantee);

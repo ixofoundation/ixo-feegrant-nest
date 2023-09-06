@@ -12,6 +12,15 @@ export class AppController {
     return this.appService.get();
   }
 
+  @Post('/feegrant/extend/:address')
+  async feeGrantExtend(@Param('address') address: string) {
+    try {
+      return this.appService.feeGrantExtend(address);
+    } catch (error) {
+      return error.message;
+    }
+  }
+
   @Post('/feegrant/:address')
   async feeGrant(@Param('address') address: string) {
     try {

@@ -33,7 +33,7 @@ export class IxoFeegrant {
     );
   }
 
-  async feegrant(grantee: string) {
+  async feegrant(grantee: string, durationInDays?: number) {
     // check if client not initiated yet redo it and await
     if (!this.signingClient || !this.wallet) await this.init();
 
@@ -57,7 +57,7 @@ export class IxoFeegrant {
               //   },
               // ],
               expiration: utils.proto.toTimestamp(
-                new Date(now.setDate(now.getDate() + 31)), // 31 days from now
+                new Date(now.setDate(now.getDate() + durationInDays ?? 31)), // default: 31 days from now
               ),
             }),
           ).finish(),
