@@ -11,5 +11,5 @@
 ## Endpoints
 
 - GET `/`
-
 - POST `/feegrant/:address`
+- POST `/feegrant/extend/:address`
