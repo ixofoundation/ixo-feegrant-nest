@@ -1,6 +1,6 @@
 {
   "name": "ixo-feegrant-nest",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "Ixo feegrant server to feegrant from ixo provided user to users.",
   "author": "Ixo",
   "private": true,
@@ -47,7 +47,7 @@
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
-    "conventional-changelog-conventionalcommits": "^8.0.0",
+    "conventional-changelog-conventionalcommits": "^7.0.2",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
