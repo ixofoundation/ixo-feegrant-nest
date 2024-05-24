@@ -8,7 +8,7 @@ require('dotenv').config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
-  app.use(authorization);
+
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     maxValueLength: 5000,
