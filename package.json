@@ -1,6 +1,6 @@
 {
   "name": "ixo-feegrant-nest",
-  "version": "1.0.0-develop.3",
+  "version": "1.0.0-develop.4",
   "description": "Ixo feegrant server to feegrant from ixo provided user to users.",
   "author": "Ixo",
   "private": true,
