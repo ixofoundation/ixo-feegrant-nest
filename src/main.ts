@@ -8,7 +8,7 @@ require('dotenv').config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
-  app.use(authorization);
+
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     maxValueLength: 5000,
@@ -17,3 +17,9 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
+
+// patch for bigint to json
+// @ts-ignore
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
