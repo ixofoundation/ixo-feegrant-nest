@@ -17,3 +17,9 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
+
+// patch for bigint to json
+// @ts-ignore
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
