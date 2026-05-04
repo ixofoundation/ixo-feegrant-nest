@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import * as Sentry from '@sentry/node';
+import { fromBech32 } from '@cosmjs/encoding';
 
 import { IxoFeegrant } from '../granter';
 import { pool, withTransaction } from '../postgres/client';
@@ -92,7 +93,21 @@ export class RefreshService implements OnModuleInit {
     );
 
     // 3. Diff and re-grant anything that has fallen out of the active set.
-    const missing = await this.findMissingGrantees(active, granter);
+    const candidates = await this.findMissingGrantees(active, granter);
+
+    // 3a. Drop any address with an invalid bech32 checksum. One bad address
+    // fails the entire atomic batch tx with code 1 "decoding bech32 failed",
+    // wasting up to 180 valid grants per retry. Cause is usually a single
+    // historical message that blocksync indexed before the chain validated it.
+    const { valid: missing, invalid } = this.partitionByBech32(candidates);
+    if (invalid.length > 0) {
+      this.logger.warn(
+        `Skipping ${invalid.length} grantee(s) with invalid bech32: ` +
+          invalid.slice(0, 10).join(', ') +
+          (invalid.length > 10 ? ` (+${invalid.length - 10} more)` : ''),
+      );
+    }
+
     if (missing.length === 0) {
       this.logger.log('No missing grantees — nothing to refresh');
       return;
@@ -100,6 +115,26 @@ export class RefreshService implements OnModuleInit {
     this.logger.log(`Granting ${missing.length} missing grantees`);
 
     await this.grantInBatches(missing);
+  }
+
+  // Split addresses into bech32-valid and bech32-invalid. The chain rejects
+  // the whole atomic batch tx if any single grantee fails decoding, so we
+  // must filter at the application layer.
+  private partitionByBech32(addresses: string[]): {
+    valid: string[];
+    invalid: string[];
+  } {
+    const valid: string[] = [];
+    const invalid: string[] = [];
+    for (const addr of addresses) {
+      try {
+        fromBech32(addr);
+        valid.push(addr);
+      } catch {
+        invalid.push(addr);
+      }
+    }
+    return { valid, invalid };
   }
 
   // Walk blocksync forward from the persisted cursor, upserting every new

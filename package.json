@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@cosmjs/encoding": "0.32.4",
     "@cosmjs/proto-signing": "0.32.4",
     "@ixo/impactxclient-sdk": "2.4.10",
     "@nestjs/common": "^9.0.0",
