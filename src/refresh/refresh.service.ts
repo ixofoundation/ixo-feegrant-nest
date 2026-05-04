@@ -92,7 +92,7 @@ export class RefreshService implements OnModuleInit {
     );
 
     // 3. Diff and re-grant anything that has fallen out of the active set.
-    const missing = await this.findMissingGrantees(active);
+    const missing = await this.findMissingGrantees(active, granter);
     if (missing.length === 0) {
       this.logger.log('No missing grantees — nothing to refresh');
       return;
@@ -170,11 +170,16 @@ export class RefreshService implements OnModuleInit {
   }
 
   // Return all addresses we've ever granted to that aren't currently active.
+  // The granter address is always excluded — cosmos-sdk rejects
+  // MsgGrantAllowance with granter == grantee, and one bad address fails the
+  // entire atomic batch tx (180 valid grants lost on each retry).
   private async findMissingGrantees(
     active: Set<string>,
+    granter: string,
   ): Promise<string[]> {
     const res = await pool.query<{ address: string }>(
-      `SELECT "address" FROM "Grantee"`,
+      `SELECT "address" FROM "Grantee" WHERE "address" != $1`,
+      [granter],
     );
     const missing: string[] = [];
     for (const row of res.rows) {

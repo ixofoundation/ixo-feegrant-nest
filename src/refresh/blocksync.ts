@@ -91,7 +91,10 @@ export const fetchGrantMessagesPage = async (
       (n) =>
         n.value?.granter === ourGranter &&
         typeof n.value?.grantee === 'string' &&
-        n.value.grantee.length > 0,
+        n.value.grantee.length > 0 &&
+        // The chain rejects MsgGrantAllowance when granter == grantee. Defensive
+        // filter — if a self-grant somehow exists in history, don't ingest it.
+        n.value.grantee !== ourGranter,
     )
     .map((n) => n.value.grantee as string);
 
