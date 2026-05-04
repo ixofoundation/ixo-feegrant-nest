@@ -148,4 +148,4 @@ src/
 
 ## Disclaimer
 
-This service issues real chain transactions that spend `uixo` from the configured granter wallet. Treat the `MNEMONIC` env var with the same care as any other production private-key material; never commit it to source
+This service issues real chain transactions that spend `uixo` from the configured granter wallet. Treat the `MNEMONIC` env var with the same care as any other production private-key material; never commit it to source.
