@@ -1,4 +1,3 @@
-// @ts-ignore — Long has no published types in this project's setup
 import Long from 'long';
 import { createQueryClient } from '@ixo/impactxclient-sdk';
 

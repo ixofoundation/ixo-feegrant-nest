@@ -61,6 +61,18 @@ export class RefreshService implements OnModuleInit {
     }
   }
 
+  // Manually fire a refresh tick. Returns immediately — the actual run
+  // happens in the background and reports its own outcome via logs/Sentry.
+  // Mutex-protected: if a tick is already in flight, we don't queue a second.
+  triggerNow(): { started: boolean; reason?: string } {
+    if (this.running) {
+      return { started: false, reason: 'a refresh tick is already running' };
+    }
+    // Fire-and-forget — refreshTick handles the mutex, errors and timing.
+    void this.refreshTick();
+    return { started: true };
+  }
+
   // Public so it can be triggered manually if needed (e.g. from a controller).
   async runOnce() {
     const granter = await IxoFeegrant.instance.getGranterAddress();
