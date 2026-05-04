@@ -1,11 +1,15 @@
 import { Controller, Get, Param, Post, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
+import { RefreshService } from './refresh/refresh.service';
 import { SentryInterceptor } from './sentry.interceptor';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly refreshService: RefreshService,
+  ) {}
 
   @Get()
   get(): string {
@@ -28,5 +32,13 @@ export class AppController {
     } catch (error) {
       return error.message;
     }
+  }
+
+  // Manually kick off a refresh tick. Auth-protected by auth.middleware.
+  // Fire-and-forget: returns immediately with whether a run was started;
+  // outcome is reported via logs/Sentry.
+  @Post('/refresh/trigger')
+  triggerRefresh() {
+    return this.refreshService.triggerNow();
   }
 }

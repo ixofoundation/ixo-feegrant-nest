@@ -13,7 +13,7 @@ export class AppService {
 
   async feeGrantExtend(grantee: string) {
     try {
-      const res = await IxoFeegrant.instance.feegrant(grantee, 7);
+      const res = await IxoFeegrant.instance.feegrant(grantee);
       assertIsDeliverTxSuccess(res);
       return res;
     } catch (error) {
